@@ -6,11 +6,10 @@ use termion::{
         Left
     }
 };
-use crate::printer;
-use crate::state;
 
-use printer::*;
+use crate::state;
 use state::*;
+
 use std::{
     ops::{
         Deref,
@@ -44,8 +43,7 @@ impl DerefMut for Line {
 }
 
 impl Renderable for Line {
-    fn render(&self, printer: &mut Printer) -> io::Result<()> {
-        printer.put(self)?;
-        write!(printer, "{}{}", Down(1), Left(self.len() as u16))
+    fn render(&self, writer: &mut Write) -> io::Result<()> {
+        write!(writer, "{}{}{}", self.0, Down(1), Left(self.len() as u16))
     }
 }

@@ -1,23 +1,23 @@
-use crate::printer::*;
 use std::{
     collections::HashMap,
     io::{
         self,
-        Stdout
+        Stdout,
+        Write
     }
 };
 
 type ID = usize;
-type Print = Box<Fn(&mut Printer) -> io::Result<()>>;
+type Render = Box<Fn(&mut Write) -> io::Result<()>>;
 
 pub trait Renderable {
-    fn render(&self, printer: &mut Printer) -> io::Result<()>;
+    fn render(&self, writer: &mut Write) -> io::Result<()>;
 }
 
 pub struct State {
     items: Vec<Box<dyn Renderable>>,
-    before: HashMap<ID, Print>,
-    after: HashMap<ID, Print>,
+    before: HashMap<ID, Render>,
+    after: HashMap<ID, Render>,
 }
 
 impl State {
@@ -29,13 +29,18 @@ impl State {
         }
     }
 
-    pub fn before(&mut self, id: ID, func: Print) {
+    pub fn before(&mut self, id: ID, func: Render) {
         self.before.insert(id, func);
     }
 
-    pub fn after(&mut self, id: ID, func: Print) {
+    pub fn after(&mut self, id: ID, func: Render) {
         self.after.insert(id, func);
     }
+
+    pub fn clear(&mut self, id: ID) -> (Option<Render>, Option<Render>) {
+        (self.before.remove(&id), self.after.remove(&id))
+    }
+
     pub fn push(&mut self, item: Box<dyn Renderable>) -> ID {
         let items = &mut self.items;
         let index = items.len();
@@ -45,19 +50,19 @@ impl State {
 }
 
 impl Renderable for State {
-    fn render(&self, printer: &mut Printer) -> io::Result<()> {
+    fn render(&self, writer: &mut Write) -> io::Result<()> {
 
         let State{ ref items, ref before, ref after } = self;
 
         for (id, item) in items.iter().enumerate() {
             if let Some(before) = before.get(&id) {
-                before(printer)?;
+                before(writer)?;
             }
 
-            item.render(printer)?;
+            item.render(writer)?;
 
             if let Some(after) = after.get(&id) {
-                after(printer)?;
+                after(writer)?;
             }
 
         }
