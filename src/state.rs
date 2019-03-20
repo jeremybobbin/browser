@@ -7,8 +7,8 @@ use std::{
     }
 };
 
-type ID = usize;
-type Render = Box<Fn(&mut Write) -> io::Result<()>>;
+pub type ID = usize;
+pub type Render = Box<Fn(&mut Write) -> io::Result<()>>;
 
 pub trait Renderable {
     fn render(&self, writer: &mut Write) -> io::Result<()>;

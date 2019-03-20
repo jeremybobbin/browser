@@ -1,17 +1,25 @@
 mod state;
 mod line;
+mod cursor;
 
 extern crate termion;
 
 use state::*;
 use line::*;
+use cursor::*;
 
 use termion::{
     color::{
         Fg,
         Red,
         Reset
-    }
+    },
+    clear,
+    cursor::{
+        Goto
+    },
+    input::TermRead,
+    raw::IntoRawMode,
 };
 
 use std::{
@@ -26,11 +34,17 @@ use std::{
     }
 };
 
-fn main() {
-    let mut writer = BufWriter::new(io::stdout());
+fn render() -> io::Result<()> {
+    let mut stdin  = io::stdin();
+    let mut stdout = io::stdout().into_raw_mode()?;
+
+    let mut writer = BufWriter::new(stdout);
+    let mut state  = State::new();
+    let mut cursor = Cursor::new();
+
     let l = Box::new(Line::new("foo".to_string()));
     let m = Box::new(Line::new("bang arrr".to_string()));
-    let mut state = State::new();
+
     let id1 = state.push(l);
     let id2 = state.push(m);
 
@@ -42,7 +56,22 @@ fn main() {
         write!(writer, "{}", Fg(Reset))
     }));
 
-    state.render(&mut writer).unwrap();
-    writer.flush().unwrap();
-    std::thread::sleep(std::time::Duration::from_secs(1));
+    for c in stdin.keys() {
+        write!(writer, "{}{}", clear::All, Goto(1, 1))?;
+        println!("{:?}", c);
+        let c = c.unwrap();
+        if let termion::event::Key::Char('q') = c {
+            break;
+        }
+        cursor.handle(&c);
+        cursor.pre(&mut state);
+        state.render(&mut writer)?;
+        cursor.post(&mut state);
+        writer.flush()?;
+    }
+    Ok(())
+}
+
+fn main() {
+    render().unwrap();
 }
