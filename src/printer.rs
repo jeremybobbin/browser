@@ -3,6 +3,7 @@ use termion::{
     cursor::{
         Goto
     },
+    clear,
     color::{
         Fg,
         Bg,
@@ -30,7 +31,7 @@ use std::{
 };
 
 pub struct Printer{
-    out: BufWriter<Stdout>,
+    pub out: BufWriter<Stdout>,
     x: u16,
     y: u16
 }
@@ -50,22 +51,22 @@ impl Deref for Printer {
 }
 
 macro_rules! impl_color {
-    ($e:ident) => {
-        pub fn $e(&mut self, contents: &str) -> io::Result<()> {
-            write!(self, "{}{}{}", Fg($e), contents, Fg(Reset))
+    ($name:ident, $type:expr) => {
+        pub fn $name(&mut self) -> io::Result<()> {
+            write!(self, "{}", Fg($type))
         }
     }
 }
 
 impl Printer {
-    pub fn new() -> Self {
+    pub fn new(stdout: Stdout) -> Self {
         Printer {
-            out: BufWriter::new(io::stdout()),
-            x: 0,
-            y: 0
+            out: BufWriter::new(stdout),
+            x: 1,
+            y: 1
         }
     }
-    fn endln(&mut self) -> io::Result<()> {
+    pub fn endln(&mut self) -> io::Result<()> {
         let new_y = self.y + 1;
         let res = write!(self, "{}", Goto(1, new_y));
         if res.is_ok() {
@@ -76,9 +77,14 @@ impl Printer {
     pub fn put(&mut self, contents: &str) -> io::Result<()> {
         write!(self, "{}", contents)
     }
-    impl_color!(Cyan);
-    impl_color!(Yellow);
-    impl_color!(Red);
-    impl_color!(Green);
-    impl_color!(Blue);
+
+    pub fn reset(&mut self) -> io::Result<()> {
+        write!(self, "{}{}", clear::All, Goto(1, 1))
+    }
+    impl_color!(cyan, Cyan);
+    impl_color!(yellow, Yellow);
+    impl_color!(red, Red);
+    impl_color!(green, Green);
+    impl_color!(blue, Blue);
+    impl_color!(regular, Reset);
 }
