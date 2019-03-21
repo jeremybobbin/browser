@@ -31,8 +31,14 @@ use std::{
 };
 // ID refers to ID of renderable 'selection'
 pub struct Cursor{
-    id: ID,
+    id:    ID,
     state: Rc<State>
+}
+
+impl Viewer for Cursor {
+    fn swap(&mut self, state: Rc<State>) {
+        self.state = state;
+    }
 }
 
 impl Cursor {
@@ -43,7 +49,33 @@ impl Cursor {
         }
     }
 
-    pub fn pre(&self, renderer: &mut Renderer) {
+    pub fn incr(&mut self, delta: i32) {
+        let max = self.state.len() as i32 - 1;
+        let mut new = self.id as i32 + delta;
+        if new > max {
+            self.id = max as ID;
+        } else if new < 0 {
+            self.id = 0;
+        } else {
+            self.id = new as ID;
+        }
+    }
+
+    pub fn handle(&mut self, key: &Key) {
+        match key {
+            Key::Char('j') => self.incr( 1),
+            Key::Char('k') => self.incr(-1),
+            _ => {}
+        }
+    }
+
+    pub fn get(&self) -> ID {
+        self.id
+    }
+}
+
+impl Affector for Cursor {
+    fn before(&self, renderer: &mut Renderer) {
         renderer.before(self.id, Box::new(|writer: &mut Write| {
             write!(writer, "{}", Bg(White))
         }));
@@ -53,31 +85,7 @@ impl Cursor {
         }));
     }
 
-    pub fn post(&self, renderer: &mut Renderer) {
+    fn after(&self, renderer: &mut Renderer) {
         renderer.clear(self.id);
-    }
-
-    pub fn incr(&mut self, delta: i32) {
-        let max = self.state.max() as i32;
-        let mut new_id = self.id as i32 + delta;
-        if new_id > max {
-            new_id = max;
-        }
-        if new_id < 0 {
-            new_id = 0;
-        }
-        self.id = new_id as ID;
-    }
-
-    pub fn swap(&mut self, state: Rc<State>) {
-        self.state = state;
-    }
-
-    pub fn handle(&mut self, key: &Key) {
-        match key {
-            Key::Char('j') => self.incr( 1),
-            Key::Char('k') => self.incr(-1),
-            _ => {}
-        }
     }
 }

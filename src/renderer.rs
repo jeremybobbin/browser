@@ -18,6 +18,7 @@ pub struct Renderer {
     after: HashMap<ID, Render>
 }
 
+
 impl Renderer {
     pub fn new(state: Rc<State>) -> Renderer {
         Renderer {
@@ -44,8 +45,8 @@ impl Renderer {
     }
 }
 
-impl Renderable for Renderer {
-    fn render(&self, writer: &mut Write) -> io::Result<()> {
+impl Renderer {
+    pub fn render(&self, writer: &mut Write) -> io::Result<()> {
         let Renderer{ ref before, ref after, ref state } = self;
 
         for (id, item) in state.iter().enumerate() {
@@ -62,4 +63,10 @@ impl Renderable for Renderer {
         Ok(())
     }
 
+}
+
+impl Viewer for Renderer {
+    fn swap(&mut self, state: Rc<State>) {
+        self.state = state;
+    }
 }

@@ -29,7 +29,11 @@ use std::{
         self,
         Write
     },
-    fs::DirEntry
+    fs::{
+        self,
+        DirEntry,
+    },
+    env,
 };
 
 impl Renderable for DirEntry {
@@ -42,9 +46,15 @@ impl Renderable for DirEntry {
         if file_type.is_file() {
             write!(writer, "{}{}{}", name, Down(1), Left(name.len() as u16))
         } else if file_type.is_dir() {
-            write!(writer, "{}{}{}{}{}", Fg(Blue), name, Fg(Reset), Down(1), Left(name.len() as u16))
+            write!(writer, "{}{}{}{}{}{}{}", Fg(Blue), Bold, name, Fg(Reset), style::Reset, Down(1), Left(name.len() as u16))
         } else {
             write!(writer, "{}{}{}{}{}", Fg(Magenta), name, Fg(Reset), Down(1), Left(name.len() as u16))
         }
+    }
+
+    fn select(&self) {
+        let path = self.path();
+        eprintln!("Changing to dir: {:?}", path);
+        env::set_current_dir(path).unwrap();
     }
 }

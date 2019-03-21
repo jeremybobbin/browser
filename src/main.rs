@@ -28,12 +28,14 @@ fn render() -> io::Result<()> {
 
     let mut manager  = Manager::new()?;
     let mut writer = BufWriter::new(stdout);
+
     let mut keys   = stdin.keys()
         .filter_map(Result::ok);
 
-
     manager.render(&mut writer);
+
     for key in keys {
+
         manager.handle_key(&key);
         if !manager.is_alive() {
             break;

@@ -11,10 +11,7 @@ use std::{
     },
 };
 
-
-
 pub struct State(Vec<Box<dyn Renderable>>);
-
 
 impl Deref for State {
 	type Target = Vec<Box<dyn Renderable>>;
@@ -33,22 +30,19 @@ impl State {
     pub fn new() -> io::Result<State> {
         let entries: Vec<Box<dyn Renderable>> = fs::read_dir(".")?
             .filter_map(|e| e.ok())
-            .map(|e| {
-                let e: Box<dyn Renderable> = Box::new(e);
-                e
-            })
+            .map(|e| Box::new(e) as Box<dyn Renderable>)
             .collect();
 
         Ok(State(entries))
     }
-    
+
     pub fn push(&mut self, item: Box<dyn Renderable>) -> ID {
         let index = self.0.len();
         self.0.push(item);
         index
     }
 
-    pub fn max(&self) -> ID {
-        self.len() - 1
+    pub fn has(&self, id: ID) -> bool {
+        self.len() > id && id >= 0
     }
 }
