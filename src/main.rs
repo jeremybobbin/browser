@@ -2,6 +2,7 @@ mod state;
 mod renderer;
 mod line;
 mod cursor;
+mod entry;
 
 extern crate termion;
 
@@ -9,6 +10,7 @@ use state::*;
 use line::*;
 use cursor::*;
 use renderer::*;
+use entry::*;
 
 
 use termion::{

@@ -1,3 +1,7 @@
+use crate::entry;
+
+use entry::*;
+
 use std::{
     collections::HashMap,
     io::{
@@ -46,7 +50,15 @@ impl State {
         //     .collect();
 
         // Ok(State(strings))
-        Ok(State(Vec::new()))
+        let entries: Vec<Box<dyn Renderable>> = fs::read_dir(".")?
+            .filter_map(|e| e.ok())
+            .map(|e| {
+                let e: Box<dyn Renderable> = Box::new(e);
+                e
+            })
+            .collect();
+
+        Ok(State(entries))
     }
     
     pub fn push(&mut self, item: Box<dyn Renderable>) -> ID {
