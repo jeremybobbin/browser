@@ -1,12 +1,10 @@
-use crate::line;
-use crate::renderer;
-use crate::state;
+use crate::{
+    types::*,
+    renderer::*,
+    state::*,
+};
 
 extern crate termion;
-
-use line::*;
-use state::*;
-use renderer::*;
 
 use termion::{
     color::{

@@ -1,19 +1,19 @@
 mod state;
 mod renderer;
-mod line;
 mod cursor;
 mod entry;
 mod manager;
+mod types;
 
 extern crate termion;
 
+
 use state::*;
-use line::*;
 use cursor::*;
 use renderer::*;
 use entry::*;
 use manager::*;
-
+use types::*;
 
 use termion::{
     color::{

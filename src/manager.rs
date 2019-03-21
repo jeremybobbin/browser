@@ -1,14 +1,12 @@
 extern crate termion;
 
-use crate::line;
-use crate::renderer;
-use crate::state;
-use crate::cursor;
+use crate::{
+    state::*,
+    renderer::*,    
+    cursor::*,
+    types::*,
+};
 
-use line::*;
-use state::*;
-use renderer::*;
-use cursor::*;
 
 use termion::{
     input::TermRead,
@@ -39,7 +37,6 @@ use std::{
     rc::Rc,
 };
 
-type Screen = BufWriter<RawTerminal<Stdout>>;
 
 pub struct Manager {
     cursor  : Cursor,

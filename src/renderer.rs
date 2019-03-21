@@ -1,5 +1,7 @@
-
-use crate::state::*;
+use crate::{
+    state::*,
+    types::*,
+};
 
 use std::{
     collections::HashMap,

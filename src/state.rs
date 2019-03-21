@@ -1,6 +1,7 @@
-use crate::entry;
-
-use entry::*;
+use crate::{
+    entry::*,
+    types::*,
+};
 
 use std::{
     collections::HashMap,
@@ -17,12 +18,7 @@ use std::{
     ffi::OsString
 };
 
-pub type ID = usize;
-pub type Render = Box<Fn(&mut Write) -> io::Result<()>>;
 
-pub trait Renderable {
-    fn render(&self, writer: &mut Write) -> io::Result<()>;
-}
 
 pub struct State(Vec<Box<dyn Renderable>>);
 
@@ -42,14 +38,6 @@ impl DerefMut for State {
 
 impl State {
     pub fn new() -> io::Result<State> {
-        // let strings: Vec<String> = fs::read_dir(".")?
-        //     .filter_map(|r| r.ok())
-        //     .map(|e| e.file_name())
-        //     .map(|s| s.into_string())
-        //     .filter_map(|r| r.ok())
-        //     .collect();
-
-        // Ok(State(strings))
         let entries: Vec<Box<dyn Renderable>> = fs::read_dir(".")?
             .filter_map(|e| e.ok())
             .map(|e| {

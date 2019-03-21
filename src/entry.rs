@@ -1,8 +1,9 @@
 extern crate termion;
 
-use crate::state;
-
-use state::*;
+use crate::{
+    state::*,
+    types::*,
+};
 
 use termion::{
     color::{
