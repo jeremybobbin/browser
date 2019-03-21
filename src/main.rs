@@ -3,6 +3,7 @@ mod renderer;
 mod line;
 mod cursor;
 mod entry;
+mod manager;
 
 extern crate termion;
 
@@ -11,6 +12,7 @@ use line::*;
 use cursor::*;
 use renderer::*;
 use entry::*;
+use manager::*;
 
 
 use termion::{
@@ -41,44 +43,24 @@ use std::{
 };
 
 fn render() -> io::Result<()> {
-    let mut stdin    = io::stdin();
-    let mut stdout   = io::stdout().into_raw_mode()?;
+    let mut stdout = io::stdout().into_raw_mode()?;
+    let mut stdin  = io::stdin();
 
-    let mut writer   = BufWriter::new(stdout);
-    let mut state    =     State::new().unwrap();
+    let mut manager  = Manager::new()?;
+    let mut writer = BufWriter::new(stdout);
+    let mut keys   = stdin.keys()
+        .filter_map(Result::ok);
 
-    let l = Box::new(Line::new("foo".to_string()));
-    let m = Box::new(Line::new("bang arrr".to_string()));
 
-    let id1 = state.push(l);
-    let id2 = state.push(m);
-
-    let state = Rc::new(state);
-
-    let mut cursor   =    Cursor::new(Rc::clone(&state));
-    let mut renderer =  Renderer::new(Rc::clone(&state));
-
-    renderer.before(id1, Box::new(|writer: &mut Write| {
-        write!(writer, "{}", Fg(Red))
-    }));
-
-    renderer.after(id1, Box::new(|writer: &mut Write| {
-        write!(writer, "{}", Fg(Reset))
-    }));
-
-    for c in stdin.keys() {
-        write!(writer, "{}{}", clear::All, Goto(1, 1))?;
-        println!("{:?}", c);
-        let c = c.unwrap();
-        if let termion::event::Key::Char('q') = c {
+    manager.render(&mut writer);
+    for key in keys {
+        manager.handle_key(&key);
+        if !manager.is_alive() {
             break;
         }
-        cursor.handle(&c);
-        cursor.pre(&mut renderer);
-        renderer.render(&mut writer)?;
-        cursor.post(&mut renderer);
-        writer.flush()?;
+        manager.render(&mut writer);
     }
+
     Ok(())
 }
 

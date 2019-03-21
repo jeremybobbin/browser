@@ -11,12 +11,17 @@ use renderer::*;
 use termion::{
     color::{
         Reset,
+        White,
         Fg,
+        Bg,
         Red
     },
     event::{
         Event,
         Key
+    },
+    style::{
+        Bold,
     }
 };
 
@@ -42,11 +47,11 @@ impl Cursor {
 
     pub fn pre(&self, renderer: &mut Renderer) {
         renderer.before(self.id, Box::new(|writer: &mut Write| {
-            write!(writer, "{}", Fg(Red))
+            write!(writer, "{}", Bg(White))
         }));
 
         renderer.after(self.id, Box::new(|writer: &mut Write| {
-            write!(writer, "{}", Fg(Reset))
+            write!(writer, "{}", Bg(Reset))
         }));
     }
 

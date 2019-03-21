@@ -6,7 +6,9 @@ use state::*;
 
 use termion::{
     color::{
+        Blue,
         Red,
+        Magenta,
         Reset,
         Fg
     },
@@ -14,6 +16,11 @@ use termion::{
         Goto,
         Left,
         Down,
+    },
+    style::{
+        self,
+        Bold,
+        NoBold
     }
 };
 
@@ -34,6 +41,14 @@ impl Renderable for DirEntry {
         let name = self.file_name()
             .into_string()
             .unwrap_or("NULL".to_string());
-        write!(writer, "{}{}{}", name, Down(1), Left(name.len() as u16))
+
+        let file_type = self.file_type()?;
+        if file_type.is_file() {
+            write!(writer, "{}{}{}", name, Down(1), Left(name.len() as u16))
+        } else if file_type.is_dir() {
+            write!(writer, "{}{}{}{}{}", Fg(Blue), name, Fg(Reset), Down(1), Left(name.len() as u16))
+        } else {
+            write!(writer, "{}{}{}{}{}", Fg(Magenta), name, Fg(Reset), Down(1), Left(name.len() as u16))
+        }
     }
 }
