@@ -9,11 +9,6 @@ use crate::{
 
 
 use termion::{
-    input::TermRead,
-    raw::{
-        RawTerminal,
-        IntoRawMode,
-    },
     event::Key,
     cursor::{
         Goto
@@ -23,16 +18,9 @@ use termion::{
 };
 
 use std::{
-    ops::{
-        Deref,
-        DerefMut
-    },
     io::{
         self,
-        Stdin,
-        Stdout,
-        Write,
-        BufWriter,
+        Write
     },
     rc::Rc,
 };

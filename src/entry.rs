@@ -1,7 +1,6 @@
 extern crate termion;
 
 use crate::{
-    state::*,
     types::*,
 };
 
@@ -30,11 +29,7 @@ use std::{
         self,
         Write
     },
-    fs::{
-        self,
-        DirEntry
-    },
-    ffi::OsString
+    fs::DirEntry
 };
 
 impl Renderable for DirEntry {

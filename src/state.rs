@@ -1,21 +1,14 @@
 use crate::{
-    entry::*,
     types::*,
 };
 
 use std::{
-    collections::HashMap,
-    io::{
-        self,
-        Stdout,
-        Write
-    },
+    io,
+    fs,
     ops::{
         Deref,
         DerefMut
     },
-    fs,
-    ffi::OsString
 };
 
 

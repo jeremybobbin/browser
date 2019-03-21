@@ -7,39 +7,19 @@ mod types;
 
 extern crate termion;
 
-
-use state::*;
-use cursor::*;
-use renderer::*;
-use entry::*;
 use manager::*;
-use types::*;
 
 use termion::{
-    color::{
-        Fg,
-        Red,
-        Reset
-    },
-    clear,
-    cursor::{
-        Goto
-    },
     input::TermRead,
     raw::IntoRawMode,
 };
 
+
 use std::{
-    ops::{
-        Deref,
-        DerefMut
-    },
     io::{
         self,
-        Write,
         BufWriter
     },
-    rc::Rc,
 };
 
 fn render() -> io::Result<()> {
