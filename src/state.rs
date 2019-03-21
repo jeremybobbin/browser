@@ -4,7 +4,13 @@ use std::{
         self,
         Stdout,
         Write
-    }
+    },
+    ops::{
+        Deref,
+        DerefMut
+    },
+    fs,
+    ffi::OsString
 };
 
 pub type ID = usize;
@@ -14,59 +20,42 @@ pub trait Renderable {
     fn render(&self, writer: &mut Write) -> io::Result<()>;
 }
 
-pub struct State {
-    items: Vec<Box<dyn Renderable>>,
-    before: HashMap<ID, Render>,
-    after: HashMap<ID, Render>,
+pub struct State(Vec<Box<dyn Renderable>>);
+
+
+impl Deref for State {
+	type Target = Vec<Box<dyn Renderable>>;
+	fn deref(&self) -> &Self::Target {
+		&self.0
+	}
+}
+
+impl DerefMut for State {
+	fn deref_mut(&mut self) -> &mut Self::Target {
+		&mut self.0
+	}
 }
 
 impl State {
-    pub fn new() -> State {
-        State {
-            items:      Vec::new(),
-            before: HashMap::new(),
-            after:  HashMap::new(),
-        }
-    }
+    pub fn new() -> io::Result<State> {
+        // let strings: Vec<String> = fs::read_dir(".")?
+        //     .filter_map(|r| r.ok())
+        //     .map(|e| e.file_name())
+        //     .map(|s| s.into_string())
+        //     .filter_map(|r| r.ok())
+        //     .collect();
 
-    pub fn before(&mut self, id: ID, func: Render) {
-        self.before.insert(id, func);
+        // Ok(State(strings))
+        Ok(State(Vec::new()))
     }
-
-    pub fn after(&mut self, id: ID, func: Render) {
-        self.after.insert(id, func);
-    }
-
-    pub fn clear(&mut self, id: ID) -> (Option<Render>, Option<Render>) {
-        (self.before.remove(&id), self.after.remove(&id))
-    }
-
+    
     pub fn push(&mut self, item: Box<dyn Renderable>) -> ID {
-        let items = &mut self.items;
-        let index = items.len();
-        items.push(item);
+        let index = self.0.len();
+        self.0.push(item);
         index
     }
-}
 
-impl Renderable for State {
-    fn render(&self, writer: &mut Write) -> io::Result<()> {
-
-        let State{ ref items, ref before, ref after } = self;
-
-        for (id, item) in items.iter().enumerate() {
-            if let Some(before) = before.get(&id) {
-                before(writer)?;
-            }
-
-            item.render(writer)?;
-
-            if let Some(after) = after.get(&id) {
-                after(writer)?;
-            }
-
-        }
-        Ok(())
+    pub fn max(&self) -> ID {
+        self.len() - 1
     }
-
 }
